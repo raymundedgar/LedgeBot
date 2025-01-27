@@ -42,7 +42,7 @@ async function saveWalletToFile(walletDetails) {
     }
 }
 
-// Function to ask a question 
+// Function to ask a question
 async function askQuestion(question) {
     const rl = readline.createInterface({
         input: process.stdin,
@@ -63,7 +63,7 @@ async function autoRegister() {
         log.warn('No proxies found, running without proxy...');
     }
     const numberOfWallets = await askQuestion("How many wallets/ref do you want to create? ");
-    const refCode = await askQuestion("Enter Your Referral code example => O8Ijyqih: ");
+    const refCode = await askQuestion("Enter Your Referral code example => fcoVA8o1: ");
     for (let i = 0; i < numberOfWallets; i++) {
         const proxy = proxies[i % proxies.length] || null;
         try {

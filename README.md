@@ -20,7 +20,7 @@
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/Zlkcyber/LedgeBot.git
+    git clone https://github.com/raymundedgar/LedgeBot.git
     cd LedgeBot
     ```
 
