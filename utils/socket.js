@@ -8,6 +8,10 @@ class LayerEdgeConnection {
     constructor(proxy = null, privateKey = null, refCode = "fcoVA8o1") {
         this.refCode = refCode;
         this.proxy = proxy;
+        this.headers = {
+            Accept: "application/json, text/plain, */*",
+            Origin: "https://dashboard.layeredge.io",
+        }
 
         this.axiosConfig = {
             ...(this.proxy && { httpsAgent: newAgent(this.proxy) }),
@@ -26,15 +30,24 @@ class LayerEdgeConnection {
     async makeRequest(method, url, config = {}, retries = 30) {
         for (let i = 0; i < retries; i++) {
             try {
+                const headers = { ...this.headers };
+                if (method.toUpperCase() === 'POST') {
+                    headers['Content-Type'] = 'application/json';
+                }
+
                 const response = await axios({
                     method,
                     url,
+                    headers,
                     ...this.axiosConfig,
                     ...config,
                 });
                 return response;
             } catch (error) {
-                if (i === retries - 1) {
+                if (error?.response?.status === 404 || error?.status === 404) {
+                    log.error(chalk.red(`Layer Edge connection failed wallet not registered yet...`));
+                    return 404;
+                } else if (i === retries - 1) {
                     log.error(`Max retries reached - Request failed:`, error.message);
                     if (this.proxy) {
                         log.error(`Failed proxy: ${this.proxy}`, error.message);
@@ -143,6 +156,12 @@ class LayerEdgeConnection {
             "get",
             `https://referralapi.layeredge.io/api/light-node/node-status/${this.wallet.address}`
         );
+
+        if (response === 404) {
+            log.info("Node not found in this wallet, trying to regitering wallet...");
+            await this.registerWallet();
+            return false;
+        }
 
         if (response && response.data && response.data.data.startTimestamp !== null) {
             log.info("Node Status Running", response.data);
